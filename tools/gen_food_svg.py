@@ -318,6 +318,186 @@ def d_roujiamo():
     return svg(inner)
 
 
+# ================= 四川特色系列（10 款，器型刻意做区分） =================
+def d_maocai():
+    # 冒菜：奶白 + 宝蓝边的搪瓷矮盆
+    p = [steam(),
+         '<path d="M34,114 C36,153 62,163 100,163 C138,163 164,153 166,114 Z" fill="#f1f6f2"/>',
+         '<path d="M42,136 q58,15 116,0" stroke="#3f6fb5" stroke-width="6" fill="none" opacity=".85"/>',
+         '<ellipse cx="100" cy="114" rx="70" ry="17" fill="#3f6fb5"/>',
+         '<ellipse cx="100" cy="114" rx="60" ry="13" fill="#cf3a24"/>']
+    # 藕片
+    p += ['<circle cx="74" cy="111" r="9" fill="#f3ead6"/>']
+    p += [dot(71, 109, 1.7, '#b9a86a'), dot(77, 109, 1.7, '#b9a86a'), dot(74, 114, 1.7, '#b9a86a')]
+    p += ['<circle cx="124" cy="112" r="8" fill="#f3ead6"/>']
+    p += [dot(121, 110, 1.5, '#b9a86a'), dot(127, 111, 1.5, '#b9a86a'), dot(124, 115, 1.5, '#b9a86a')]
+    # 土豆片 / 午餐肉 / 青菜 / 毛肚
+    p += [ell(96, 109, 11, 6, '#f2cf6a', 12),
+          '<rect x="102" y="112" width="20" height="12" rx="3" fill="#e88b8b"/>',
+          '<path d="M58,116 q10,-10 20,-2 M140,116 q-10,-10 -20,-2" stroke="#4aa85a" stroke-width="5" fill="none"/>',
+          ell(100, 116, 9, 5, '#6b4a35', -8)]
+    p += ['<ellipse cx="100" cy="114" rx="70" ry="17" fill="none"/>', face(100, 146)]
+    return svg(''.join(p))
+
+
+def d_chuanchuan():
+    # 串串香：黑砂锅 + 竖起的竹签
+    p = []
+    sticks = [(70, 42, '#d9602e'), (88, 33, '#f3ead6'), (110, 40, '#a8512f'), (130, 31, '#f3ead6'), (100, 28, '#d9602e')]
+    for x, ty, col in sticks:
+        bx = x + (6 if x < 100 else -6)
+        p.append(f'<line x1="{x}" y1="{ty}" x2="{bx}" y2="108" stroke="#c79a5b" stroke-width="3.6"/>')
+        p.append(f'<rect x="{x-7}" y="{ty-6}" width="14" height="12" rx="3" fill="{col}" transform="rotate(10 {x} {ty})"/>')
+    p += ['<circle cx="28" cy="122" r="9" fill="#4a4038"/>', '<circle cx="172" cy="122" r="9" fill="#4a4038"/>',
+          '<path d="M30,112 C30,151 58,161 100,161 C142,161 170,151 170,112 Z" fill="#4a4038"/>',
+          '<ellipse cx="100" cy="112" rx="71" ry="16" fill="#5d5048"/>',
+          '<ellipse cx="100" cy="112" rx="62" ry="12" fill="#cf3a24"/>']
+    p += [dot(74, 110, 4, '#e8c98f'), dot(128, 110, 4, '#4aa85a'), dot(100, 114, 4, '#f3e2b0'),
+          ell(88, 114, 7, 4, '#7a4a2b', 10)]
+    p += [steam(), '<ellipse cx="100" cy="112" rx="71" ry="16" fill="none"/>', face(100, 140, dark=False)]
+    return svg(''.join(p))
+
+
+def d_bobo():
+    # 钵钵鸡：土黄粗陶宽口钵（冷吃，无蒸汽）
+    p = ['<path d="M40,112 C46,158 68,168 100,168 C132,168 154,158 160,112 Z" fill="#c9854a"/>']
+    p += [dot(66, 142, 2.4, '#a8672f'), dot(136, 146, 2.4, '#a8672f'), dot(112, 156, 2.2, '#a8672f'),
+          dot(84, 156, 2.2, '#b0733a'), dot(142, 130, 2.2, '#a8672f')]
+    p += ['<ellipse cx="100" cy="112" rx="63" ry="15" fill="#ad6c36"/>',
+          '<ellipse cx="100" cy="112" rx="54" ry="11" fill="#d9602e"/>']
+    # 鸡块 + 藕片 + 青椒
+    p += [ell(80, 110, 11, 7, '#d98a5a', -10), ell(122, 112, 11, 7, '#d98a5a', 12),
+          '<circle cx="100" cy="109" r="8" fill="#f3ead6"/>']
+    p += [dot(97, 107, 1.5, '#b9a86a'), dot(103, 108, 1.5, '#b9a86a'), dot(100, 112, 1.5, '#b9a86a')]
+    p += ['<path d="M62,114 q9,-8 18,-1 M126,115 q-8,-8 -17,-1" stroke="#4aa85a" stroke-width="4.5" fill="none"/>',
+          '<ellipse cx="100" cy="112" rx="63" ry="15" fill="none"/>', face(100, 142)]
+    return svg(''.join(p))
+
+
+def d_tianshui():
+    # 甜水面：青花瓷碗 + 粗面
+    p = [steam(),
+         '<path d="M32,112 C30,162 56,174 100,174 C144,174 170,162 168,112 Z" fill="#ffffff"/>']
+    # 青花纹饰
+    p += ['<path d="M46,134 q13,-7 27,0 t27,0 t27,0 t24,0" stroke="#3f6fb5" stroke-width="4" fill="none"/>',
+          '<circle cx="72" cy="152" r="5" fill="none" stroke="#3f6fb5" stroke-width="3"/>',
+          '<circle cx="128" cy="152" r="5" fill="none" stroke="#3f6fb5" stroke-width="3"/>']
+    p += ['<ellipse cx="100" cy="112" rx="66" ry="16" fill="#7a3a20"/>']
+    # 三股粗面
+    p += ['<g fill="none" stroke="#f0d28a" stroke-width="9" stroke-linecap="round">'
+          '<path d="M46,106 q27,-10 54,0 t54,0"/><path d="M44,113 q27,-10 56,0 t56,0"/>'
+          '<path d="M48,120 q26,-9 52,0 t52,0"/></g>']
+    p += [ell(100, 106, 14, 6, '#d94326', 6)]
+    p += [dot(72, 105, 3, '#e8c98f'), dot(128, 104, 3, '#e8c98f'), dot(90, 118, 3, '#f3e2b0'),
+          dot(116, 119, 3, '#4aa85a'), dot(60, 112, 2.8, '#4aa85a'), dot(140, 116, 2.8, '#4aa85a')]
+    p += ['<ellipse cx="100" cy="112" rx="66" ry="16" fill="none"/>', face(100, 160)]
+    return svg(''.join(p))
+
+
+def d_longchao():
+    # 龙抄手：鼓腹白瓷汤盅
+    p = [steam(),
+         '<circle cx="40" cy="116" r="8" fill="#e9e4da"/>', '<circle cx="160" cy="116" r="8" fill="#e9e4da"/>',
+         '<path d="M42,108 C40,150 62,168 100,168 C138,168 160,150 158,108 Z" fill="#fbfaf6"/>',
+         '<ellipse cx="100" cy="108" rx="57" ry="14" fill="#f3e4b0"/>']
+    # 三只元宝馄饨
+    for cx, cy, r in [(78, 106, -8), (104, 104, 6), (92, 113, 0)]:
+        p.append(f'<path d="M{cx-13},{cy} q13,-13 26,0 q-13,8 -26,0 Z" fill="#ffffff" transform="rotate({r} {cx} {cy})"/>')
+        p.append(f'<path d="M{cx-6},{cy-3} q6,-5 12,0" stroke="#e3ddd0" stroke-width="2.4" fill="none" transform="rotate({r} {cx} {cy})"/>')
+    p += [dot(64, 110, 2.8, '#4aa85a'), dot(136, 108, 2.8, '#4aa85a'), dot(120, 113, 2.6, '#3a3a3a'),
+          dot(82, 112, 2.4, '#3a3a3a')]
+    p += ['<ellipse cx="100" cy="108" rx="57" ry="14" fill="none"/>', face(100, 144)]
+    return svg(''.join(p))
+
+
+def d_maokao():
+    # 冒烤鸭：白圆盘 + 红汤里的烤鸭块
+    p = ['<ellipse cx="100" cy="150" rx="84" ry="20" fill="#eef0f4"/>',
+         '<ellipse cx="100" cy="146" rx="68" ry="15" fill="#cf3a24"/>',
+         '<path d="M62,139 q16,-9 30,-3 l-2,12 q-16,6 -30,-1 Z" fill="#9c4a2c"/>',
+         '<path d="M112,138 q15,-8 28,-2 l-1,12 q-15,6 -28,-1 Z" fill="#a8512f"/>',
+         '<path d="M70,120 h56 l-2,26 q-26,9 -52,0 Z" fill="#a8512f"/>',
+         '<path d="M70,120 h56 l-1,-7 h-54 Z" fill="#e8a85a"/>',
+         '<path d="M58,146 q9,-7 17,-1 M128,146 q8,-7 16,-1" stroke="#4aa85a" stroke-width="5" fill="none"/>',
+         dot(64, 138, 3, '#e8c98f'), dot(140, 137, 3, '#e8c98f'),
+         '<ellipse cx="100" cy="150" rx="84" ry="20" fill="none"/>',
+         face(98, 132, dark=False)]
+    return svg(''.join(p))
+
+
+def d_tutou():
+    # 双流兔头：小圆盘 + 卡通卤兔头（可爱化，长耳 + 满足脸）
+    p = ['<ellipse cx="100" cy="152" rx="78" ry="17" fill="#eef0f4"/>',
+         '<path d="M60,146 q16,-9 34,-3 M108,147 q15,-8 30,-2" stroke="#4aa85a" stroke-width="4.5" fill="none"/>',
+         dot(64, 142, 3, '#d94326'), dot(138, 142, 3, '#e8c98f'),
+         '<ellipse cx="80" cy="66" rx="9" ry="26" fill="#8a4a28" transform="rotate(-13 80 66)"/>',
+         '<ellipse cx="119" cy="64" rx="9" ry="26" fill="#8a4a28" transform="rotate(11 119 64)"/>',
+         '<ellipse cx="80" cy="68" rx="4.5" ry="18" fill="#b06a44" transform="rotate(-13 80 68)"/>',
+         '<ellipse cx="119" cy="66" rx="4.5" ry="18" fill="#b06a44" transform="rotate(11 119 66)"/>',
+         '<ellipse cx="100" cy="110" rx="35" ry="31" fill="#8a4a28"/>',
+         '<ellipse cx="100" cy="118" rx="23" ry="19" fill="#9c5836"/>']
+    # 满足闭眼 + 鼻嘴 + 腮红
+    p += ['<path d="M84,112 q7,-7 14,0 M106,112 q7,-7 14,0" stroke="#3a2412" stroke-width="3.4" fill="none"/>',
+          '<path d="M97,121 q3,4 6,0" stroke="#3a2412" stroke-width="3" fill="none"/>',
+          '<ellipse cx="82" cy="122" rx="6" ry="3.6" fill="#ff9fb0" opacity=".5" stroke="none"/>',
+          '<ellipse cx="118" cy="122" rx="6" ry="3.6" fill="#ff9fb0" opacity=".5" stroke="none"/>']
+    p += [dot(88, 96, 2.4, '#d94326'), dot(114, 94, 2.4, '#e8c98f'), dot(104, 99, 2, '#d94326'),
+          '<ellipse cx="100" cy="152" rx="78" ry="17" fill="none"/>']
+    return svg(''.join(p))
+
+
+def d_zhongjiao():
+    # 钟水饺：浅盘 + 红油月牙饺
+    p = ['<ellipse cx="100" cy="134" rx="80" ry="33" fill="#f3ecd8"/>',
+         '<ellipse cx="100" cy="130" rx="64" ry="23" fill="#d94326"/>']
+    for cx, cy, rot in [(72, 126, -10), (102, 120, 6), (92, 138, -2)]:
+        p.append(f'<path d="M{cx-16},{cy} q16,-16 32,0 q-16,9 -32,0 Z" fill="#fbf6ee" transform="rotate({rot} {cx} {cy})"/>')
+        p.append(f'<path d="M{cx-9},{cy-4} l3,4 M{cx-2},{cy-7} l1,5 M{cx+6},{cy-6} l-1,5" stroke="#e3d9c4" stroke-width="2.4" transform="rotate({rot} {cx} {cy})"/>')
+    p += [dot(70, 118, 2.6, '#f6f1e2'), dot(128, 124, 2.6, '#f6f1e2'), dot(124, 140, 2.4, '#f6f1e2'),
+          dot(64, 136, 2.4, '#f6f1e2'),
+          '<ellipse cx="100" cy="134" rx="80" ry="33" fill="none"/>',
+          face(102, 121)]
+    return svg(''.join(p))
+
+
+def d_feipian():
+    # 夫妻肺片：椭圆盘 + 红油薄片牛肉 + 花生香菜
+    p = ['<ellipse cx="100" cy="138" rx="84" ry="26" fill="#eef0f4"/>',
+         '<ellipse cx="100" cy="134" rx="71" ry="19" fill="#c93a24"/>',
+         '<path d="M54,132 q22,-12 46,-5 q-4,12 -46,9 Z" fill="#8a4a30"/>',
+         '<path d="M96,124 q24,-10 46,-2 q-2,12 -46,8 Z" fill="#a85b40"/>',
+         '<path d="M70,140 q22,-8 44,-2 q-6,11 -44,7 Z" fill="#965038"/>',
+         '<path d="M58,128 q10,-8 18,-2 M126,138 q9,-7 17,-1" stroke="#4aa85a" stroke-width="4.5" fill="none"/>']
+    p += [dot(76, 126, 2.8, '#e8c98f'), dot(120, 124, 2.8, '#e8c98f'), dot(104, 140, 2.6, '#e8c98f'),
+          dot(88, 134, 2.6, '#e8c98f'), dot(134, 130, 2.4, '#e8c98f'),
+          '<ellipse cx="100" cy="138" rx="84" ry="26" fill="none"/>',
+          '<circle cx="94" cy="128" r="2.6" fill="#fff" stroke="none"/><circle cx="108" cy="128" r="2.6" fill="#fff" stroke="none"/>',
+          '<path d="M96,132 q4,4 8,0" stroke="#fff" stroke-width="2.4" fill="none"/>']
+    return svg(''.join(p))
+
+
+def d_bingfen():
+    # 冰粉：高脚玻璃杯 + 红糖水 + 冰粉 + 丰富配料
+    p = ['<ellipse cx="100" cy="173" rx="30" ry="7" fill="#dfeaf5"/>',
+         '<rect x="94" y="150" width="12" height="22" rx="5" fill="#eef4fa"/>',
+         '<path d="M52,60 L148,60 L124,150 L76,150 Z" fill="#f2f8fd" opacity=".95"/>',
+         '<path d="M74,118 L126,118 L122,150 L78,150 Z" fill="#b5532a"/>',
+         '<path d="M58,74 L142,74 L126,118 L74,118 Z" fill="#dceefb" opacity=".85"/>']
+    # 冰粉颤块
+    p += ['<rect x="80" y="86" width="18" height="14" rx="5" fill="#f2f9ff" opacity=".9"/>',
+          '<rect x="104" y="96" width="16" height="13" rx="5" fill="#f2f9ff" opacity=".9"/>',
+          '<rect x="86" y="106" width="15" height="11" rx="4" fill="#f2f9ff" opacity=".9"/>']
+    # 顶部配料：山楂碎 / 花生 / 葡萄干 / 小丸子
+    p += [dot(72, 80, 3.2, '#d94326'), dot(128, 80, 3.2, '#d94326'), dot(100, 78, 3, '#d94326'),
+          dot(86, 82, 3, '#e8c98f'), dot(116, 84, 3, '#e8c98f'),
+          dot(94, 84, 2.8, '#7a4a8a'), dot(122, 78, 2.6, '#7a4a8a'),
+          dot(80, 76, 3.4, '#fbf3e6'), dot(110, 80, 3.4, '#fbf3e6'), dot(134, 84, 3, '#fbf3e6')]
+    p += ['<ellipse cx="100" cy="60" rx="48" ry="10" fill="#eef4fa"/>',
+          '<path d="M66,72 L78,142" stroke="#ffffff" stroke-width="4" opacity=".7" fill="none"/>',
+          face(100, 102)]
+    return svg(''.join(p))
+
+
 FILES = {
     'lanzhou_niurou_noodle': d_lanzhou,
     'roujiamo': d_roujiamo,
@@ -339,6 +519,17 @@ FILES = {
     'hulatang': d_hula,
     'yanshuiya': d_yanshui,
     'chongqing_huoguo': d_huoguo,
+    # 四川特色系列
+    'maocai': d_maocai,
+    'chuanchuan': d_chuanchuan,
+    'bobo_chicken': d_bobo,
+    'tianshui_noodle': d_tianshui,
+    'longchaoshou': d_longchao,
+    'mao_kaoya': d_maokao,
+    'shuangliu_tutou': d_tutou,
+    'zhong_shuijiao': d_zhongjiao,
+    'fuqi_feipian': d_feipian,
+    'bingfen': d_bingfen,
 }
 
 

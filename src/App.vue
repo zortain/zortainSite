@@ -60,11 +60,9 @@ function pick() {
 
   const startTs = performance.now()
   // 速度曲线：从静止起步 → 逐渐加速 → 中段达峰值 → 再减速到停。
-  // 分段三次曲线 C1 连续；峰值速度系数 2.1，即原先 ease-out 峰值(3)的 70%。
-  const PEAK = 2.1
-  // f(u)=(4P-8)u³+(6-2P)u²，P=2.1 时即 0.4u³+1.8u²：f(0)=0、f(.5)=.5、两端导数0、中点导数=P
-  const easeLeft = (u) => (4 * PEAK - 8) * u * u * u + (6 - 2 * PEAK) * u * u
-  const ease = (t) => (t <= 0.5 ? easeLeft(t) : 1 - easeLeft(1 - t))
+  // smoothstep e=3t²-2t³：两端速度为 0，中点峰值 1.5，是“先加速后减速”下最平缓的 S 曲线
+  // （数学上此类曲线峰值必 >平均速度 1，1.5 已是最低、最柔和的一档）。
+  const ease = (t) => t * t * (3 - 2 * t)
 
   function frame(now) {
     const t = Math.min(1, (now - startTs) / duration)
@@ -153,7 +151,6 @@ function again() {
 
     <footer class="foot">
       <button class="foot-link" type="button" @click="showAll = true">餐点大全</button>
-      <span class="foot-note">随机时长 3–7 秒 · 结果纯前端生成</span>
     </footer>
   </div>
 </template>
@@ -326,7 +323,6 @@ function again() {
   padding: 2px 4px;
 }
 .foot-link:hover { color: #e8663a; }
-.foot-note { font-size: 12px; color: #b89a7d; }
 
 /* 餐点大全弹窗 */
 .modal-all { width: 560px; }
