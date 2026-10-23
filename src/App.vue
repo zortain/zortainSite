@@ -1,9 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { dishes } from './data/dishes.js'
+import { foodTypes as dishes, allDishes } from './data/dishes.js'
 import FoodIcon from './components/FoodIcon.vue'
 
 const N = dishes.length
+const showAll = ref(false)
 const rand = (min, max) => Math.random() * (max - min) + min
 const mod = (n, m) => ((n % m) + m) % m
 
@@ -58,8 +59,12 @@ function pick() {
   const target = start + delta
 
   const startTs = performance.now()
-  // ease-out-cubic：开始快、结尾慢
-  const ease = (t) => 1 - Math.pow(1 - t, 3)
+  // 速度曲线：从静止起步 → 逐渐加速 → 中段达峰值 → 再减速到停。
+  // 分段三次曲线 C1 连续；峰值速度系数 2.1，即原先 ease-out 峰值(3)的 70%。
+  const PEAK = 2.1
+  // f(u)=(4P-8)u³+(6-2P)u²，P=2.1 时即 0.4u³+1.8u²：f(0)=0、f(.5)=.5、两端导数0、中点导数=P
+  const easeLeft = (u) => (4 * PEAK - 8) * u * u * u + (6 - 2 * PEAK) * u * u
+  const ease = (t) => (t <= 0.5 ? easeLeft(t) : 1 - easeLeft(1 - t))
 
   function frame(now) {
     const t = Math.min(1, (now - startTs) / duration)
@@ -125,7 +130,31 @@ function again() {
       </div>
     </transition>
 
-    <footer class="foot">随机时长 3–7 秒 · 结果纯前端生成</footer>
+    <!-- 餐点大全弹窗 -->
+    <transition name="pop">
+      <div v-if="showAll" class="modal-mask" @click.self="showAll = false">
+        <div class="modal modal-all">
+          <div class="modal-tag">餐点大全 · 共 {{ allDishes.length }} 种</div>
+          <div class="all-grid">
+            <div v-for="d in allDishes" :key="d.id" class="all-cell">
+              <div class="all-icon"><FoodIcon :id="d.id" /></div>
+              <div class="all-name">{{ d.name }}</div>
+            </div>
+          </div>
+          <p class="all-tip">
+            更多餐点类型请联系
+            <a href="mailto:morningcs@126.com">morningcs@126.com</a>
+            添加，也欢迎更多有趣的功能点子意见提供给作者。
+          </p>
+          <button class="modal-btn" @click="showAll = false">收起来</button>
+        </div>
+      </div>
+    </transition>
+
+    <footer class="foot">
+      <button class="foot-link" type="button" @click="showAll = true">餐点大全</button>
+      <span class="foot-note">随机时长 3–7 秒 · 结果纯前端生成</span>
+    </footer>
   </div>
 </template>
 
@@ -283,7 +312,47 @@ function again() {
   box-shadow: 0 8px 18px rgba(232, 102, 58, .35);
 }
 
-.foot { margin-top: 26px; font-size: 12px; color: #b89a7d; }
+.foot { margin-top: 26px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.foot-link {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #c25a2e;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 2px 4px;
+}
+.foot-link:hover { color: #e8663a; }
+.foot-note { font-size: 12px; color: #b89a7d; }
+
+/* 餐点大全弹窗 */
+.modal-all { width: 560px; }
+.all-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px 8px;
+  margin: 14px 0 18px;
+}
+.all-cell { display: flex; flex-direction: column; align-items: center; }
+.all-icon { width: 92px; height: 92px; }
+.all-name { margin-top: 2px; font-size: 13px; font-weight: 600; color: #6b4423; text-align: center; }
+.all-tip {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #8a715c;
+  margin: 0 0 18px;
+  text-align: center;
+}
+.all-tip a { color: #c25a2e; font-weight: 600; text-decoration: none; }
+.all-tip a:hover { text-decoration: underline; }
+@media (max-width: 520px) {
+  .modal-all { width: 100%; }
+  .all-grid { grid-template-columns: repeat(3, 1fr); }
+  .all-icon { width: 78px; height: 78px; }
+}
 
 @keyframes popin {
   0% { transform: scale(.4) rotate(-8deg); opacity: 0; }

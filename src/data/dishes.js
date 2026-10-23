@@ -142,3 +142,26 @@ export const dishes = [
     desc: '中国餐饮第一大品类、聚餐气氛天花板。牛油红锅麻辣鲜香、越煮越浓，毛肚七上八下、鸭肠打卷即食，一群人围炉涮到酣畅淋漓。'
   }
 ]
+
+// “带碗”造型（碗口较大）的餐点：轮播时与非碗类交错排列，避免大碗图案连续相邻，动效更清爽
+const bowlIds = new Set([
+  'lanzhou_niurou_noodle',
+  'chongqing_xiaomian',
+  'luosifen',
+  'reganmian',
+  'zhajiangmian',
+  'guoqiao_mixian',
+  'dandan_noodle',
+  'yaxue_fensi',
+  'daoxiaomian',
+  'hulatang'
+])
+
+// 轮播专用序列：碗、非碗、碗、非碗……（两类恰好各 10 个，循环首尾也保证不相邻）
+const bowls = dishes.filter((d) => bowlIds.has(d.id))
+const others = dishes.filter((d) => !bowlIds.has(d.id))
+export const foodTypes = bowls.flatMap((b, i) => (others[i] ? [b, others[i]] : [b]))
+
+// 原始榜单顺序（餐点大全弹窗使用）
+export const allDishes = dishes
+
