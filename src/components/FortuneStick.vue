@@ -72,37 +72,37 @@ function draw() {
           <ellipse cx="100" cy="72" rx="48" ry="12" fill="#e9c25c" stroke="#a9791f" stroke-width="2"/>
           <ellipse cx="100" cy="72" rx="40" ry="8.6" fill="#5c1a11"/>
 
-          <!-- 五支古竹签条（竹身 + 竹节 + 朱红头），底部伸入筒口被筒身/筒沿遮住 -->
+          <!-- 五支古竹签条：自然归拢、角度轻微不一、高低微错落（竹身+竹节+加长朱红头） -->
           <g>
-            <g transform="rotate(-13 74 74)">
-              <rect x="71" y="20" width="6.5" height="78" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
-              <rect x="71" y="40" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="71" y="62" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="71" y="20" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            <g transform="rotate(-8 81.25 74)">
+              <rect x="78" y="16" width="6.5" height="82" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="78" y="40" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="78" y="62" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="78" y="16" width="6.5" height="14" rx="3.2" fill="#b5342a"/>
             </g>
-            <g transform="rotate(-6 87 74)">
-              <rect x="84" y="14" width="6.5" height="84" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
-              <rect x="84" y="36" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="84" y="60" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="84" y="14" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            <g transform="rotate(-3 90.25 74)">
+              <rect x="87" y="11" width="6.5" height="87" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="87" y="35" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="87" y="57" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="87" y="11" width="6.5" height="14" rx="3.2" fill="#b5342a"/>
             </g>
             <g>
-              <rect x="96.75" y="10" width="6.5" height="88" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="96.75" y="8" width="6.5" height="90" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
               <rect x="96.75" y="32" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="96.75" y="56" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="96.75" y="10" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+              <rect x="96.75" y="54" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="96.75" y="8" width="6.5" height="14" rx="3.2" fill="#b5342a"/>
             </g>
-            <g transform="rotate(6 113 74)">
-              <rect x="109.5" y="15" width="6.5" height="83" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
-              <rect x="109.5" y="37" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="109.5" y="61" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="109.5" y="15" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            <g transform="rotate(3.5 109.25 74)">
+              <rect x="106" y="13" width="6.5" height="85" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="106" y="37" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="106" y="59" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="106" y="13" width="6.5" height="14" rx="3.2" fill="#b5342a"/>
             </g>
-            <g transform="rotate(13 126 74)">
-              <rect x="122.5" y="22" width="6.5" height="76" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
-              <rect x="122.5" y="42" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="122.5" y="64" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
-              <rect x="122.5" y="22" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            <g transform="rotate(7 118.25 74)">
+              <rect x="115" y="18" width="6.5" height="80" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="115" y="42" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="115" y="64" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="115" y="18" width="6.5" height="14" rx="3.2" fill="#b5342a"/>
             </g>
           </g>
 
