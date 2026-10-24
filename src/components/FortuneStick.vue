@@ -40,7 +40,7 @@ function draw() {
 <template>
   <div class="fortune">
     <header class="f-head">
-      <h1 class="f-title">摇&nbsp;签</h1>
+      <h1 class="f-title">求&nbsp;一&nbsp;签</h1>
       <p class="f-sub">静心默念所问之事，诚心摇签，随缘点化</p>
     </header>
 
@@ -51,39 +51,76 @@ function draw() {
         <!-- 跳出的那支签 -->
         <div v-if="phase === 'result' && current" class="fly-stick" :style="{ background: meta.color }"></div>
         <svg class="tube" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <!-- 签条 -->
-          <g>
-            <rect x="78" y="24" width="7" height="66" rx="3.5" fill="#f4e4bc" stroke="#c9a35f" stroke-width="1.2" transform="rotate(-9 81 57)"/>
-            <rect x="96" y="20" width="7" height="70" rx="3.5" fill="#f7ecc9" stroke="#c9a35f" stroke-width="1.2"/>
-            <rect x="114" y="26" width="7" height="62" rx="3.5" fill="#f4e4bc" stroke="#c9a35f" stroke-width="1.2" transform="rotate(10 117 57)"/>
-          </g>
-          <!-- 筒身 -->
-          <path d="M52 72 q48 22 96 0 l-9 92 q-39 18 -78 0 Z" fill="#c0392b"/>
-          <path d="M52 72 q48 22 96 0 l-9 92 q-39 18 -78 0 Z" fill="url(#tubeShade)"/>
-          <path d="M58 84 q42 17 84 0 l-7 74 q-35 15 -70 0 Z" fill="#8e2318" opacity="0.55"/>
-          <!-- 金字竖匾 -->
-          <rect x="84" y="100" width="32" height="52" rx="5" fill="#f3d27a" stroke="#8a6a1f" stroke-width="1.5"/>
-          <text x="100" y="121" font-size="15" font-weight="700" fill="#7a2218" text-anchor="middle" font-family="serif">灵</text>
-          <text x="100" y="140" font-size="15" font-weight="700" fill="#7a2218" text-anchor="middle" font-family="serif">签</text>
-          <!-- 金箍 -->
-          <path d="M52 72 q48 22 96 0 l-2 12 q-46 20 -92 0 Z" fill="#e8b94c"/>
-          <path d="M52 72 q48 22 96 0 l-2 12 q-46 20 -92 0 Z" fill="url('#rimShade')"/>
-          <ellipse cx="100" cy="72" rx="48" ry="12" fill="#f6d98a" stroke="#b0852c" stroke-width="2"/>
-          <ellipse cx="100" cy="71" rx="38" ry="8" fill="#6e1d13"/>
-          <!-- 底座 -->
-          <ellipse cx="100" cy="168" rx="56" ry="10" fill="#7c1f15"/>
-          <ellipse cx="100" cy="165" rx="56" ry="9" fill="#a52b1d"/>
           <defs>
             <linearGradient id="tubeShade" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
               <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
-              <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+              <stop offset="1" stop-color="#000000" stop-opacity="0.25"/>
             </linearGradient>
             <linearGradient id="rimShade" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stop-color="#fff3cf"/>
               <stop offset="1" stop-color="#d19a2e"/>
             </linearGradient>
+            <linearGradient id="bamboo" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#e7d39a"/>
+              <stop offset="0.5" stop-color="#f6e9c2"/>
+              <stop offset="1" stop-color="#d3b877"/>
+            </linearGradient>
           </defs>
+
+          <!-- 筒口：外圈金边 + 内壁深色（先画，作为签条插入口） -->
+          <ellipse cx="100" cy="72" rx="48" ry="12" fill="#e9c25c" stroke="#a9791f" stroke-width="2"/>
+          <ellipse cx="100" cy="72" rx="40" ry="8.6" fill="#5c1a11"/>
+
+          <!-- 五支古竹签条（竹身 + 竹节 + 朱红头），底部伸入筒口被筒身/筒沿遮住 -->
+          <g>
+            <g transform="rotate(-13 74 74)">
+              <rect x="71" y="20" width="6.5" height="78" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="71" y="40" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="71" y="62" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="71" y="20" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            </g>
+            <g transform="rotate(-6 87 74)">
+              <rect x="84" y="14" width="6.5" height="84" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="84" y="36" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="84" y="60" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="84" y="14" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            </g>
+            <g>
+              <rect x="96.75" y="10" width="6.5" height="88" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="96.75" y="32" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="96.75" y="56" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="96.75" y="10" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            </g>
+            <g transform="rotate(6 113 74)">
+              <rect x="109.5" y="15" width="6.5" height="83" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="109.5" y="37" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="109.5" y="61" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="109.5" y="15" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            </g>
+            <g transform="rotate(13 126 74)">
+              <rect x="122.5" y="22" width="6.5" height="76" rx="3.2" fill="url(#bamboo)" stroke="#b3924e" stroke-width="1"/>
+              <rect x="122.5" y="42" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="122.5" y="64" width="6.5" height="2" fill="#b3924e" opacity="0.7"/>
+              <rect x="122.5" y="22" width="6.5" height="9" rx="3.2" fill="#b5342a"/>
+            </g>
+          </g>
+
+          <!-- 筒身前片：盖住签条下半截，造成“插进筒里” -->
+          <path d="M52 72 q48 22 96 0 l-9 92 q-39 18 -78 0 Z" fill="#c0392b"/>
+          <path d="M52 72 q48 22 96 0 l-9 92 q-39 18 -78 0 Z" fill="url(#tubeShade)"/>
+          <path d="M58 86 q42 16 84 0 l-7 72 q-35 14 -70 0 Z" fill="#8e2318" opacity="0.5"/>
+          <!-- 金字竖匾 -->
+          <rect x="84" y="102" width="32" height="50" rx="5" fill="#f3d27a" stroke="#8a6a1f" stroke-width="1.5"/>
+          <text x="100" y="122" font-size="15" font-weight="700" fill="#7a2218" text-anchor="middle" font-family="serif">灵</text>
+          <text x="100" y="141" font-size="15" font-weight="700" fill="#7a2218" text-anchor="middle" font-family="serif">签</text>
+
+          <!-- 筒口前沿（下半弧金边）：最后画，压住签根 -->
+          <path d="M52 72 A48 12 0 0 0 148 72 Z" fill="url(#rimShade)" stroke="#a9791f" stroke-width="2"/>
+
+          <!-- 底座 -->
+          <ellipse cx="100" cy="168" rx="56" ry="10" fill="#7c1f15"/>
+          <ellipse cx="100" cy="165" rx="56" ry="9" fill="#a52b1d"/>
         </svg>
       </div>
       <!-- 香烟/光晕点缀 -->
