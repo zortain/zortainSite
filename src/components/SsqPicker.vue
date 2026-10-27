@@ -29,7 +29,7 @@ async function draw() {
 <template>
   <div class="ssq">
     <h1 class="ssq-title">双色球预测</h1>
-    <p class="ssq-sub">基于近 N 期真实开奖，开出越多的号码被选中的概率越低</p>
+    <p class="ssq-sub">基于近 N 期真实开奖的多因子模型：冷热频次 + 遗漏回补 + 邻号，并按高频形态择优</p>
 
     <div class="ctrl">
       <label class="ctrl-label">参考期数</label>
@@ -61,6 +61,17 @@ async function draw() {
             </span>
           </div>
           <p class="strategy">🎯 {{ data.strategy }}（数据来源：{{ data.source }}）</p>
+          <div class="shape">
+            <span class="sh-chip">奇偶 {{ data.predict.shape.oddEven }}</span>
+            <span class="sh-chip">大小 {{ data.predict.shape.bigSmall }}</span>
+            <span class="sh-chip">三区 {{ data.predict.shape.zones.join('-') }}</span>
+            <span class="sh-chip">和值 {{ data.predict.shape.sum }}</span>
+            <span class="sh-chip">连号 {{ data.predict.shape.consec }} 组</span>
+            <span class="sh-chip">重号 {{ data.predict.shape.repeat }} 个</span>
+          </div>
+          <ul class="factors">
+            <li v-for="(f, i) in data.predict.factors" :key="i">{{ f }}</li>
+          </ul>
           <p class="cold">
             近 {{ data.n }} 期未开出的冷号 —
             红球：<b>{{ data.predict.coldRed.length ? data.predict.coldRed.map(pad).join('、') : '无' }}</b>
@@ -83,7 +94,7 @@ async function draw() {
     </transition>
 
     <p class="disclaimer">
-      本结果由历史频次加权随机生成，彩票开奖为独立随机事件，任何方法均无法预测，仅供娱乐，请理性购彩。
+      本结果由历史数据多因子加权随机生成，彩票每期开奖为独立随机事件，历史规律不代表未来结果，任何方法均无法提高中奖概率，仅供娱乐，请理性购彩。
     </p>
   </div>
 </template>
@@ -201,6 +212,10 @@ async function draw() {
 .strategy { font-size: 13.5px; color: #444; line-height: 1.7; margin: 12px 0 6px; }
 .cold { font-size: 13px; color: #666; line-height: 1.8; margin: 0; }
 .cold b { color: #1d4ed8; font-weight: 700; }
+.shape { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
+.sh-chip { font-size: 12px; color: #b91c1c; background: #fff1f0; border: 1px solid #ffd9d4; border-radius: 999px; padding: 3px 10px; font-weight: 600; }
+.factors { margin: 6px 0 2px; padding-left: 18px; }
+.factors li { font-size: 12.5px; color: #777; line-height: 1.75; }
 
 .history { margin-top: 18px; border-top: 1px solid #f0e4d6; padding-top: 14px; }
 .hist-title { font-size: 13.5px; font-weight: 700; color: #8a6a48; margin-bottom: 10px; }
