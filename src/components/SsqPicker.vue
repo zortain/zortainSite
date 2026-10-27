@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
 const OPTIONS = [5, 10, 20]
 const n = ref(10)
@@ -27,7 +27,19 @@ async function draw() {
 
 function changeN(v) {
   n.value = v
-  draw()
+  data.value = null
+  error.value = ''
+  // 历史开奖页切换期数：主动留在该页并重新拉取；号码分析页则回到空态，等待点击生成
+  if (view.value === 'history') draw()
+}
+
+// 进入二级视图（无顶部 tab，统一由卡片入口进入、返回按钮退出）
+function go(v) {
+  view.value = v
+  if (v === 'history' && !data.value) draw()
+}
+function back() {
+  view.value = 'analysis'
 }
 
 const shapeItems = computed(() => {
@@ -48,8 +60,6 @@ const factorCards = computed(() => [
   { title: '遗漏观察', sub: '记录号码未出现期数', goto: 'model' },
   { title: '形态筛选', sub: '奇偶、大小与分区组合', goto: 'model' },
 ])
-
-onMounted(draw)
 
 const ICONS = {
   oe: '<svg viewBox="0 0 24 24"><circle cx="9" cy="10" r="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="16" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-dasharray="3 2"/></svg>',
@@ -86,11 +96,10 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
         </svg>
         <span class="brand-name">双色球 · 数据研究室</span>
       </div>
-      <nav class="subnav">
-        <button :class="{ on: view === 'analysis' }" @click="view = 'analysis'">号码分析</button>
-        <button :class="{ on: view === 'history' }" @click="view = 'history'">历史开奖</button>
-        <button :class="{ on: view === 'model' }" @click="view = 'model'">模型说明</button>
-      </nav>
+      <button v-if="view !== 'analysis'" class="back-btn" @click="back">
+        <svg viewBox="0 0 24 24" class="ic sm"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        返回看板
+      </button>
     </header>
 
     <div class="lab-body">
@@ -163,7 +172,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                     <div class="card-sub dim">开奖信息以官方公布为准</div>
                   </div>
                 </div>
-                <button class="link-btn" @click="view = 'history'">查看全部
+                <button class="link-btn" @click="go('history')">查看全部
                   <svg viewBox="0 0 24 24" class="ic sm"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
               </div>
@@ -195,7 +204,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                   <svg viewBox="0 0 24 24" class="ic gold"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3M9 20h6M12 13v7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                   <div class="card-title">最近开奖</div>
                 </div>
-                <button class="link-btn" @click="view = 'history'">查看详情
+                <button class="link-btn" @click="go('history')">查看详情
                   <svg viewBox="0 0 24 24" class="ic sm"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
               </div>
@@ -217,7 +226,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                   <div class="card-title">组合分析</div>
                 </div>
               </div>
-              <button v-for="f in factorCards" :key="f.title" class="factor-row" @click="view = f.goto">
+              <button v-for="f in factorCards" :key="f.title" class="factor-row" @click="go(f.goto)">
                 <span class="factor-l">
                   <span class="factor-ic" v-html="factorIcon(f.title)"></span>
                   <span><b>{{ f.title }}</b><i>{{ f.sub }}</i></span>
@@ -248,6 +257,33 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
           </div>
         </div>
         <div v-else-if="loading" class="loading-box">正在读取近 {{ n }} 期开奖数据并生成组合…</div>
+
+        <!-- 首屏空白态：未生成，等待点击 -->
+        <div v-else class="empty-board">
+          <div class="empty-inner">
+            <div class="empty-balls" aria-hidden="true">
+              <span v-for="x in 6" :key="'eg' + x" class="ball red big ghost-big">??</span>
+              <span class="plus">+</span>
+              <span class="ball blue big ghost-big">?</span>
+            </div>
+            <h2 class="empty-title">还没有生成号码</h2>
+            <p class="empty-desc">选择近 5 / 10 / 20 期数据，点击右上角「生成一组号码」，<br/>即可查看参考组合、形态指标与历史开奖统计。</p>
+            <button class="gen-btn empty-gen" :disabled="loading" @click="draw">
+              <svg viewBox="0 0 24 24" class="ic"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Z" fill="currentColor"/><path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" fill="currentColor"/></svg>
+              立即生成一组号码
+            </button>
+            <div class="empty-links">
+              <button class="ghost-link" @click="go('history')">
+                <svg viewBox="0 0 24 24" class="ic sm"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                查看历史开奖
+              </button>
+              <button class="ghost-link" @click="go('model')">
+                <svg viewBox="0 0 24 24" class="ic sm"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 8.5v3.5M12 15.6v.1" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                模型说明
+              </button>
+            </div>
+          </div>
+        </div>
       </template>
 
       <!-- ============ 历史开奖 ============ -->
@@ -264,7 +300,15 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
             </select>
           </div>
         </div>
-        <section v-if="data" class="card full-table">
+        <div class="loading-box" v-if="loading">正在读取近 {{ n }} 期开奖数据…</div>
+        <div v-else-if="!data" class="empty-board slim">
+          <div class="empty-inner">
+            <h2 class="empty-title">暂无历史开奖数据</h2>
+            <p class="empty-desc">点击下方按钮，加载近 {{ n }} 期双色球开奖号码。</p>
+            <button class="gen-btn empty-gen" @click="draw">加载开奖记录</button>
+          </div>
+        </div>
+        <section v-else class="card full-table">
           <table class="htable big">
             <thead><tr><th>期号</th><th>开奖日期</th><th>红球</th><th class="tr">蓝球</th></tr></thead>
             <tbody>
@@ -286,17 +330,20 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
         <div class="page-head">
           <div><h1 class="page-title">模型说明</h1><p class="page-sub">多因子加权随机 · 高频形态择优</p></div>
         </div>
-        <section v-if="data" class="card model-card">
+        <section class="card model-card">
           <div class="model-flow">
             <div class="mf-step"><span class="mf-no">01</span><b>冷热频次</b><p>近 N 期开出次数越多，权重按指数（0.72^次数）衰减，实现冷号优先，而非把热号完全排除。</p></div>
             <div class="mf-step"><span class="mf-no">02</span><b>遗漏回补</b><p>结合近 30 期遗漏期数，偏好“温冷回补区”，对刚开出的热号与遗漏超 20 期的深冷号同时降权。</p></div>
             <div class="mf-step"><span class="mf-no">03</span><b>邻号联动</b><p>对上期开奖号码的 ±1 邻号给予小幅加权。</p></div>
             <div class="mf-step"><span class="mf-no">04</span><b>形态择优</b><p>生成 2500 组号码权重候选，按奇偶比、大小比、三区、和值、连号、重号、012 路打分，在高分候选中概率择一，兼顾合理与随机。</p></div>
           </div>
-          <ul class="model-factors">
-            <li v-for="(f, i) in data.predict.factors" :key="i">{{ f }}</li>
-          </ul>
-          <p class="strategy-line">🎯 {{ data.strategy }}</p>
+          <template v-if="data">
+            <ul class="model-factors">
+              <li v-for="(f, i) in data.predict.factors" :key="i">{{ f }}</li>
+            </ul>
+            <p class="strategy-line">🎯 {{ data.strategy }}</p>
+          </template>
+          <p v-else class="model-empty">生成一组号码后，这里会展示本次预测实际使用的因子说明与策略。</p>
           <p class="model-warn">彩票每期开奖为相互独立的随机事件，历史规律不代表未来结果，任何模型都无法提高中奖概率。本页内容仅供数据研究与娱乐参考，请理性购彩。</p>
         </section>
       </template>
@@ -337,19 +384,54 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .brand { display: flex; align-items: center; gap: 11px; }
 .brand-logo { width: 30px; height: 30px; filter: drop-shadow(0 0 10px rgba(94,234,255,.5)); }
 .brand-name { font-size: 19px; font-weight: 800; letter-spacing: 1px; color: #eaf4ff; }
-.subnav { display: flex; gap: 38px; }
-.subnav button {
-  position: relative; background: none; border: none; cursor: pointer;
-  color: #8fa2c8; font-size: 16px; font-weight: 600; letter-spacing: 2px; padding: 6px 2px;
+.back-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 38px; padding: 0 16px; cursor: pointer;
+  color: #cfe3ff; font-size: 14px; font-weight: 600; letter-spacing: 1px;
+  background: rgba(94, 234, 255, .08);
+  border: 1px solid rgba(94, 234, 255, .3); border-radius: 10px;
+  transition: background .18s, box-shadow .18s;
 }
-.subnav button:hover { color: #cfe3ff; }
-.subnav button.on { color: #eaf4ff; }
-.subnav button.on::after {
-  content: ''; position: absolute; left: 50%; transform: translateX(-50%); bottom: -18px;
-  width: 34px; height: 3px; border-radius: 3px;
-  background: linear-gradient(90deg, #22d3ee, #2b7bff);
-  box-shadow: 0 0 12px rgba(34, 211, 238, .8);
+.back-btn:hover { background: rgba(94, 234, 255, .16); box-shadow: 0 0 16px rgba(94,234,255,.25); }
+.back-btn .ic { width: 17px; height: 17px; color: #5eeaff; }
+
+/* 首屏空白态 */
+.empty-board {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 480px; padding: 40px 20px;
+  border: 1px dashed rgba(94, 234, 255, .18); border-radius: 20px;
+  background: radial-gradient(ellipse 60% 60% at 50% 30%, rgba(34, 211, 238, .06), transparent 70%);
 }
+.empty-board.slim { min-height: 320px; }
+.empty-inner { text-align: center; max-width: 560px; }
+.empty-balls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+.empty-balls .plus { color: #5eeaff; font-size: 26px; font-weight: 300; }
+.ball.ghost-big {
+  background: transparent !important;
+  border: 1.5px dashed rgba(94, 234, 255, .4);
+  color: rgba(150, 190, 240, .55);
+  box-shadow: none;
+  animation: floaty 3.2s ease-in-out infinite;
+}
+.ball.ghost-big:nth-child(2) { animation-delay: .2s; }
+.ball.ghost-big:nth-child(3) { animation-delay: .4s; }
+.ball.ghost-big:nth-child(4) { animation-delay: .6s; }
+.ball.ghost-big:nth-child(5) { animation-delay: .8s; }
+.ball.ghost-big:nth-child(6) { animation-delay: 1s; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.empty-title { margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #eaf4ff; letter-spacing: 1px; }
+.empty-desc { margin: 0 0 26px; color: #8197bd; font-size: 15px; line-height: 1.9; }
+.empty-gen { margin: 0 auto; }
+.empty-links { display: flex; gap: 14px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+.ghost-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: 1px solid rgba(143, 169, 214, .3); border-radius: 10px;
+  color: #9fb4d8; font-size: 14px; padding: 9px 18px; cursor: pointer;
+  transition: color .18s, border-color .18s;
+}
+.ghost-link:hover { color: #cfe3ff; border-color: rgba(94, 234, 255, .5); }
+.ghost-link .ic { width: 16px; height: 16px; color: #7fa7d8; }
+.model-empty { color: #8197bd; font-size: 14px; margin: 6px 0 16px; padding: 14px 16px; background: rgba(94,234,255,.05); border-radius: 10px; border: 1px solid rgba(94,234,255,.12); }
 
 .lab-body { padding: 30px; }
 
