@@ -4,27 +4,27 @@ import FoodPicker from './components/FoodPicker.vue'
 import FortuneStick from './components/FortuneStick.vue'
 import SsqPicker from './components/SsqPicker.vue'
 
-const tab = ref('food') // food | fortune | ssq
+const tab = ref('ssq') // ssq | food | fortune
 </script>
 
 <template>
   <div class="app" :class="'theme-' + tab">
     <nav class="tabs">
+      <button class="tab" :class="{ on: tab === 'ssq' }" @click="tab = 'ssq'">
+        <span class="tab-ico">🎱</span><span>双色球预测</span>
+      </button>
       <button class="tab" :class="{ on: tab === 'food' }" @click="tab = 'food'">
         <span class="tab-ico">🍜</span><span>今天吃啥</span>
       </button>
       <button class="tab" :class="{ on: tab === 'fortune' }" @click="tab = 'fortune'">
         <span class="tab-ico">🎋</span><span>摇签测吉凶</span>
       </button>
-      <button class="tab" :class="{ on: tab === 'ssq' }" @click="tab = 'ssq'">
-        <span class="tab-ico">🎱</span><span>双色球预测</span>
-      </button>
     </nav>
 
     <main class="panels">
+      <div v-show="tab === 'ssq'" class="panel"><SsqPicker /></div>
       <div v-show="tab === 'food'" class="panel"><FoodPicker /></div>
       <div v-show="tab === 'fortune'" class="panel"><FortuneStick /></div>
-      <div v-show="tab === 'ssq'" class="panel"><SsqPicker /></div>
     </main>
   </div>
 </template>
@@ -48,8 +48,9 @@ const tab = ref('food') // food | fortune | ssq
 }
 .theme-ssq {
   background:
-    radial-gradient(1100px 520px at 50% -180px, #eef3ff 0%, rgba(224, 232, 255, 0) 62%),
-    linear-gradient(180deg, #fbfcff 0%, #f1f4fb 100%);
+    radial-gradient(900px 480px at 50% -120px, rgba(34, 211, 238, .18) 0%, rgba(34, 211, 238, 0) 60%),
+    radial-gradient(700px 500px at 100% 0%, rgba(99, 102, 241, .16) 0%, rgba(99, 102, 241, 0) 55%),
+    linear-gradient(180deg, #0a1124 0%, #0b1530 46%, #0a1020 100%);
 }
 
 .tabs {
@@ -91,10 +92,18 @@ const tab = ref('food') // food | fortune | ssq
   background: linear-gradient(180deg, #d8503f 0%, #b32c20 100%);
   box-shadow: 0 8px 18px rgba(179, 44, 32, .35);
 }
+
+.theme-ssq .tabs {
+  background: rgba(10, 17, 36, .72);
+  border-bottom: 1px solid rgba(94, 234, 255, .16);
+  box-shadow: 0 1px 24px rgba(34, 211, 238, .08);
+}
+.theme-ssq .tab { color: #9fb4d8; }
+.theme-ssq .tab:hover { color: #e6fbff; background: rgba(94, 234, 255, .08); }
 .theme-ssq .tab.on {
-  color: #fff;
-  background: linear-gradient(180deg, #e8403a 0%, #1d4ed8 130%);
-  box-shadow: 0 8px 18px rgba(29, 78, 216, .30);
+  color: #04121c;
+  background: linear-gradient(180deg, #7df0ff 0%, #22d3ee 55%, #2bb8ff 100%);
+  box-shadow: 0 0 0 1px rgba(125, 240, 255, .5), 0 8px 26px rgba(34, 211, 238, .42);
 }
 
 .panels { width: 100%; }
