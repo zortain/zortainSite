@@ -289,9 +289,9 @@ onMounted(draw)
 
 .disclaimer {
   text-align: center;
-  color: #6f82a8;
-  font-size: 12px;
-  line-height: 1.85;
+  color: #8fa2c8;
+  font-size: 12.5px;
+  line-height: 1.9;
   margin: 28px auto 0;
   max-width: 580px;
 }

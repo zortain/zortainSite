@@ -1,10 +1,22 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import FoodPicker from './components/FoodPicker.vue'
 import FortuneStick from './components/FortuneStick.vue'
 import SsqPicker from './components/SsqPicker.vue'
 
 const tab = ref('ssq') // ssq | food | fortune
+
+// 让 body/html 底色跟随当前主题，避免超宽视口或滚动边界处露出默认白底
+const bodyBg = {
+  ssq: '#0a1124',
+  food: '#fff8ef',
+  fortune: '#fff7ef',
+}
+watchEffect(() => {
+  const c = bodyBg[tab.value] || '#ffffff'
+  document.body.style.background = c
+  document.documentElement.style.background = c
+})
 </script>
 
 <template>
@@ -112,4 +124,10 @@ const tab = ref('ssq') // ssq | food | fortune
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+</style>
+
+<style>
+/* 全局重置：清除默认边距，根节点底色兜底，防止任何视口下露出白边 */
+html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; background: #0a1124; }
+body { overflow-x: hidden; }
 </style>
