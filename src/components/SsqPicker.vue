@@ -310,7 +310,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .lab {
   position: relative;
   width: 100%;
-  max-width: 1240px;
+  max-width: 1440px;
   margin: 0 auto;
   color: #d6e4ff;
   overflow: hidden;
@@ -382,7 +382,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .gen-btn .ic { width: 19px; height: 19px; }
 
 /* 栅格 */
-.dash { display: grid; grid-template-columns: 1fr 368px; gap: 20px; align-items: start; }
+.dash { display: grid; grid-template-columns: 1fr 400px; gap: 22px; align-items: start; }
 .col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
 .card {
