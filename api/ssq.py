@@ -20,8 +20,10 @@ import json
 import math
 import random
 import re
+import time
 import urllib.request
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import BaseHTTPRequestHandler
 
 ALLOWED_N = (5, 10, 20)
@@ -30,6 +32,10 @@ GAP_WINDOW = 30          # 计算遗漏值使用的最长历史窗口（频次�
 CANDIDATES = 2500        # 红球组合候选数量
 PICK_TEMPERATURE = 0.05  # 在高分候选中 softmax 抽样的温度：越高越随机，越低越贴近高频形态
 SUM_SIGMA = 34           # 和值偏好（均值102）的宽度
+FETCH_TIMEOUT = 6        # 单个数据源的网络超时（秒）
+RACE_TIMEOUT = 8         # 两源并发竞速的总等待上限（秒），须小于函数 maxDuration
+CACHE_TTL = 1800         # 开奖数据内存缓存有效期（秒）；开奖一天一次，可放心缓存
+_CACHE = {}              # {limit: (ts, rows, source)}，serverless 实例复用时生效
 
 SRC = (
     "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice"
@@ -49,7 +55,7 @@ HEADERS = {"User-Agent": UA, "Referer": "https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/
 def fetch_from_cwl(limit):
     url = SRC.format(n=limit)
     req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=9) as resp:
+    with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT) as resp:
         data = json.loads(resp.read().decode("utf-8"))
     if data.get("state") != 0:
         raise RuntimeError(data.get("message") or "官网接口返回异常")
@@ -69,7 +75,7 @@ def fetch_from_500(limit):
     url = SRC_500.format(n=limit)
     req = urllib.request.Request(url, headers={
         "User-Agent": UA, "Referer": "https://datachart.500.com/ssq/history/history.shtml"})
-    with urllib.request.urlopen(req, timeout=9) as resp:
+    with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT) as resp:
         html = resp.read().decode("gb2312", errors="ignore")
     rows = []
     for line in re.findall(r'tr class="t_tr1">(.*?)</tr>', html, flags=re.S):
@@ -87,17 +93,58 @@ def fetch_from_500(limit):
     return rows
 
 
+def _fetch_one(fetcher, limit, label):
+    return fetcher(limit), label
+
+
 def fetch_recent(n):
-    """返回 (rows, source)。rows 为近 max(n,30) 期（最新在前），供频次/遗漏共用。"""
+    """返回 (rows, source)。两源并发竞速，先返回有效数据者胜；带短时内存缓存兜底。
+
+    rows 为近 max(n,30) 期（最新在前），供频次/遗漏共用。
+    """
     limit = max(n, GAP_WINDOW)
+
+    # 1) 命中新鲜缓存直接返回（serverless 实例复用期间，避免重复抓取）
+    hit = _CACHE.get(limit)
+    if hit and (time.time() - hit[0]) < CACHE_TTL and hit[1]:
+        return hit[1], hit[2]
+
+    # 2) 官网与备用源并发竞速，避免串行等待超时叠加导致函数超时
+    jobs = {
+        "中国福利彩票官网": fetch_from_cwl,
+        "500彩票网（备用）": fetch_from_500,
+    }
     errors = []
-    for fetcher in (fetch_from_cwl, fetch_from_500):
-        try:
-            rows = fetcher(limit)
-            if rows:
-                return rows, ("中国福利彩票官网" if fetcher is fetch_from_cwl else "500彩票网（备用）")
-        except Exception as exc:  # noqa: BLE001
-            errors.append(str(exc))
+    result = None
+    pool = ThreadPoolExecutor(max_workers=2)
+    futs = {pool.submit(_fetch_one, fn, limit, name): name for name, fn in jobs.items()}
+    try:
+        for fut in as_completed(futs, timeout=RACE_TIMEOUT):
+            name = futs[fut]
+            try:
+                rows, label = fut.result()
+                if rows:
+                    result = (rows, label)
+                    break
+            except Exception as exc:  # noqa: BLE001
+                errors.append("%s: %s" % (name, exc))
+    except Exception as exc:  # noqa: BLE001  竞速整体超时
+        errors.append("并发抓取超时: %s" % exc)
+    finally:
+        # 不等挂起的慢源（其 socket 超时由 FETCH_TIMEOUT 兜底，线程自行消亡）
+        for f in futs:
+            if not f.done():
+                f.cancel()
+        pool.shutdown(wait=False)
+
+    if result:
+        _CACHE[limit] = (time.time(), result[0], result[1])
+        return result
+
+    # 3) 实时全挂时，若有过期缓存也先顶上（开奖数据时效性要求不高）
+    if hit and hit[1]:
+        return hit[1], hit[2] + "（缓存）"
+
     raise RuntimeError("; ".join(errors) or "所有数据源均不可用")
 
 
