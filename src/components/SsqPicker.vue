@@ -10,11 +10,12 @@ const view = ref('analysis') // analysis(号码分析) | history(历史开奖) |
 
 const pad = x => String(x).padStart(2, '0')
 
-async function draw() {
+async function draw(cnt = 1) {
+  const c = cnt === 5 ? 5 : 1
   loading.value = true
   error.value = ''
   try {
-    const resp = await fetch(`/api/ssq?n=${n.value}`)
+    const resp = await fetch(`/api/ssq?n=${n.value}&count=${c}`)
     const json = await resp.json()
     if (!resp.ok || !json.ok) throw new Error(json.error || `请求失败（${resp.status}）`)
     data.value = json
@@ -40,6 +41,14 @@ function go(v) {
 }
 function back() {
   view.value = 'analysis'
+}
+
+const bets = computed(() => data.value?.predict?.predicts || [])
+const isMulti = computed(() => bets.value.length > 1)
+
+function betMeta(b) {
+  const s = b.shape
+  return `奇偶 ${s.oddEven} · 大小 ${s.bigSmall} · 和值 ${s.sum}`
 }
 
 const shapeItems = computed(() => {
@@ -119,7 +128,11 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                 <option v-for="o in OPTIONS" :key="o" :value="o">近 {{ o }} 期数据</option>
               </select>
             </div>
-            <button class="gen-btn" :disabled="loading" @click="draw">
+            <button class="gen-btn gen-btn-5" :disabled="loading" @click="draw(5)">
+              <svg viewBox="0 0 24 24" class="ic"><rect x="4" y="3" width="16" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="10" width="16" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="17" width="16" height="4" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+              {{ loading ? '生成中…' : '生成五注' }}
+            </button>
+            <button class="gen-btn" :disabled="loading" @click="draw(1)">
               <svg viewBox="0 0 24 24" class="ic"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Z" fill="currentColor"/><path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" fill="currentColor"/></svg>
               {{ loading ? '生成中…' : '生成一组号码' }}
             </button>
@@ -135,8 +148,8 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                 <div class="card-h-l">
                   <svg viewBox="0 0 24 24" class="ic cyan"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 3v8.5M4 7.5l8 4 8-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
                   <div>
-                    <div class="card-title">本次参考组合</div>
-                    <div class="card-sub">基于近 {{ data.n }} 期历史数据</div>
+                    <div class="card-title">本次参考组合{{ isMulti ? '（5 注）' : '' }}</div>
+                    <div class="card-sub">基于近 {{ data.n }} 期历史数据{{ isMulti ? ' · 各注互不重复' : '' }}</div>
                   </div>
                 </div>
                 <div class="random-tag">
@@ -145,21 +158,37 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                 </div>
               </div>
 
-              <div class="combo-balls">
-                <span v-for="(x, i) in data.predict.red" :key="'c' + x" class="ball red big" :style="{ animationDelay: i * 70 + 'ms' }">{{ pad(x) }}</span>
-                <span class="plus">+</span>
-                <span class="ball blue big" :style="{ animationDelay: 420 + 'ms' }">{{ pad(data.predict.blue) }}</span>
-              </div>
-
-              <div class="shape-grid">
-                <div v-for="s in shapeItems" :key="s.label" class="shape-cell">
-                  <div class="shape-l">
-                    <span class="shape-ico" v-html="iconSvg(s.icon)"></span>
-                    <span class="shape-label">{{ s.label }}</span>
-                  </div>
-                  <div class="shape-val">{{ s.value }}</div>
+              <!-- 五注：逐注列出 -->
+              <div v-if="isMulti" class="bet-list">
+                <div v-for="(b, i) in bets" :key="'bet' + i" class="bet-row">
+                  <span class="bet-no">{{ pad(i + 1) }}</span>
+                  <span class="bet-balls">
+                    <span v-for="x in b.red" :key="'b' + i + x" class="ball red sm">{{ pad(x) }}</span>
+                    <span class="bet-plus">+</span>
+                    <span class="ball blue sm">{{ pad(b.blue) }}</span>
+                  </span>
+                  <span class="bet-meta">{{ betMeta(b) }}</span>
                 </div>
               </div>
+
+              <!-- 单注：大球 + 形态指标 -->
+              <template v-else>
+                <div class="combo-balls">
+                  <span v-for="(x, i) in data.predict.red" :key="'c' + x" class="ball red big" :style="{ animationDelay: i * 70 + 'ms' }">{{ pad(x) }}</span>
+                  <span class="plus">+</span>
+                  <span class="ball blue big" :style="{ animationDelay: 420 + 'ms' }">{{ pad(data.predict.blue) }}</span>
+                </div>
+
+                <div class="shape-grid">
+                  <div v-for="s in shapeItems" :key="s.label" class="shape-cell">
+                    <div class="shape-l">
+                      <span class="shape-ico" v-html="iconSvg(s.icon)"></span>
+                      <span class="shape-label">{{ s.label }}</span>
+                    </div>
+                    <div class="shape-val">{{ s.value }}</div>
+                  </div>
+                </div>
+              </template>
             </section>
 
             <!-- 历史开奖记录 -->
@@ -268,10 +297,16 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
             </div>
             <h2 class="empty-title">还没有生成号码</h2>
             <p class="empty-desc">选择近 5 / 10 / 20 期数据，点击右上角「生成一组号码」，<br/>即可查看参考组合、形态指标与历史开奖统计。</p>
-            <button class="gen-btn empty-gen" :disabled="loading" @click="draw">
-              <svg viewBox="0 0 24 24" class="ic"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Z" fill="currentColor"/><path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" fill="currentColor"/></svg>
-              立即生成一组号码
-            </button>
+            <div class="empty-acts">
+              <button class="gen-btn" :disabled="loading" @click="draw(1)">
+                <svg viewBox="0 0 24 24" class="ic"><path d="M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Z" fill="currentColor"/><path d="M18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" fill="currentColor"/></svg>
+                立即生成一组号码
+              </button>
+              <button class="gen-btn gen-btn-5" :disabled="loading" @click="draw(5)">
+                <svg viewBox="0 0 24 24" class="ic"><rect x="4" y="3" width="16" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="10" width="16" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="17" width="16" height="4" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                生成五注
+              </button>
+            </div>
             <div class="empty-links">
               <button class="ghost-link" @click="go('history')">
                 <svg viewBox="0 0 24 24" class="ic sm"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -305,7 +340,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
           <div class="empty-inner">
             <h2 class="empty-title">暂无历史开奖数据</h2>
             <p class="empty-desc">点击下方按钮，加载近 {{ n }} 期双色球开奖号码。</p>
-            <button class="gen-btn empty-gen" @click="draw">加载开奖记录</button>
+            <button class="gen-btn empty-gen" @click="draw(1)">加载开奖记录</button>
           </div>
         </div>
         <section v-else class="card full-table">
@@ -422,6 +457,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .empty-title { margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #eaf4ff; letter-spacing: 1px; }
 .empty-desc { margin: 0 0 26px; color: #8197bd; font-size: 15px; line-height: 1.9; }
 .empty-gen { margin: 0 auto; }
+.empty-acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .empty-links { display: flex; gap: 14px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
 .ghost-link {
   display: inline-flex; align-items: center; gap: 7px;
@@ -462,6 +498,34 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .gen-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 30px rgba(34,211,238,.7), 0 12px 28px rgba(13,80,190,.5); }
 .gen-btn:disabled { opacity: .55; }
 .gen-btn .ic { width: 19px; height: 19px; }
+
+/* 生成五注：描边次要按钮 */
+.gen-btn-5 {
+  background: rgba(34, 211, 238, .1);
+  border: 1px solid rgba(94, 234, 255, .45);
+  color: #bff3ff; letter-spacing: 1px; padding: 0 22px;
+  box-shadow: none;
+}
+.gen-btn-5:hover:not(:disabled) {
+  background: rgba(34, 211, 238, .2);
+  box-shadow: 0 0 22px rgba(34, 211, 238, .35), 0 8px 18px rgba(13, 80, 190, .25);
+}
+
+/* 五注列表 */
+.bet-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.bet-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(94, 234, 255, .04);
+  border: 1px solid rgba(94, 234, 255, .12);
+}
+.bet-no {
+  min-width: 26px; font-size: 13px; font-weight: 800; color: #5eeaff;
+  letter-spacing: 1px; font-variant-numeric: tabular-nums;
+}
+.bet-balls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.bet-plus { color: #5eeaff; font-weight: 700; }
+.bet-meta { margin-left: auto; color: #7f93bb; font-size: 12.5px; white-space: nowrap; }
 
 /* 栅格 */
 .dash { display: grid; grid-template-columns: 1fr 400px; gap: 22px; align-items: start; }
@@ -579,5 +643,7 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
   .subnav { gap: 24px; }
   .subnav button.on::after { bottom: -8px; }
   .lab-body { padding: 22px 16px; }
+  .bet-row { flex-wrap: wrap; gap: 10px; }
+  .bet-meta { margin-left: 0; white-space: normal; width: 100%; }
 }
 </style>

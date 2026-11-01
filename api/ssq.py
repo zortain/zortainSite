@@ -27,7 +27,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import BaseHTTPRequestHandler
 
 ALLOWED_N = (5, 10, 20)
+ALLOWED_COUNT = (1, 5)   # 一次生成注数：单注 / 五注
 DEFAULT_N = 10
+DEFAULT_COUNT = 1
 GAP_WINDOW = 30          # 计算遗漏值使用的最长历史窗口（频次仍严格用近 n 期）
 CANDIDATES = 2500        # 红球组合候选数量
 PICK_TEMPERATURE = 0.05  # 在高分候选中 softmax 抽样的温度：越高越随机，越低越贴近高频形态
@@ -237,7 +239,7 @@ def combo_score(nums, last_red):
     return score, shape
 
 
-def predict(rows, n):
+def predict(rows, n, count=DEFAULT_COUNT):
     recent = rows[:n]                                  # 频次窗口严格取近 n 期
     rng = random.Random()
 
@@ -265,15 +267,21 @@ def predict(rows, n):
         scored.append((sorted(cand), sc, shape))
     smax = max(x[1] for x in scored)
     exps = [math.exp((x[1] - smax) / PICK_TEMPERATURE) for x in scored]
-    total_e = sum(exps)
-    r = rng.random() * total_e
-    acc, chosen_idx = 0.0, len(scored) - 1
-    for i, e in enumerate(exps):
-        acc += e
-        if r <= acc:
-            chosen_idx = i
-            break
-    best, _, best_shape = scored[chosen_idx]
+
+    # 无放回 softmax 抽样：一次抽出 count 组互不相同的组合（五注时保证注注不同）
+    remain = list(range(len(scored)))
+    picked = []
+    for _ in range(min(count, len(scored))):
+        total_e = sum(exps[i] for i in remain)
+        r = rng.random() * total_e
+        acc, sel = 0.0, remain[-1]
+        for i in remain:
+            acc += exps[i]
+            if r <= acc:
+                sel = i
+                break
+        picked.append(sel)
+        remain.remove(sel)
 
     # ---- 蓝球权重：频次反向 + 遗漏钟形 + 近5期奇偶/大小温和反转 ----
     blue_cnt = count_map(recent, 1, 16, "blue")
@@ -295,14 +303,18 @@ def predict(rows, n):
         elif big_recent <= 1:
             wr *= 1.10 if x >= 9 else 0.94
         blue_weights[x] = wf * wg * wr
-    blue = weighted_sample(list(range(1, 17)), [blue_weights[x] for x in range(1, 17)], 1, rng)[0]
+    blues = weighted_sample(list(range(1, 17)),
+                            [blue_weights[x] for x in range(1, 17)],
+                            min(count, 16), rng)
 
     cold_red = sorted(x for x in range(1, 34) if red_cnt[x] == 0)
     cold_blue = sorted(x for x in range(1, 17) if blue_cnt[x] == 0)
+    bets = [{"red": scored[idx][0], "blue": blues[k], "shape": scored[idx][2]}
+            for k, idx in enumerate(picked)]
     return {
-        "red": best,
-        "blue": blue,
-        "shape": best_shape,
+        "count": len(bets),
+        "predicts": bets,
+        "predict": bets[0],            # 兼容单注调用方
         "redCount": {str(k): red_cnt[k] for k in range(1, 34)},
         "blueCount": {str(k): blue_cnt[k] for k in range(1, 17)},
         "redGap": {str(k): red_gap[k] for k in range(1, 34)},
@@ -313,6 +325,7 @@ def predict(rows, n):
             "遗漏值：偏好温冷回补区，热号与超深冷号均降权（参考近 %d 期）" % GAP_WINDOW,
             "上期邻号(±1)小幅加权",
             "从 %d 组候选按 奇偶/大小/三区/和值/连号/重号/012路 形态打分，高分候选概率择优" % CANDIDATES,
+            "生成 %d 注时按概率无放回抽取，保证各注组合互不重复" % count,
         ],
     }
 
@@ -339,11 +352,19 @@ class handler(BaseHTTPRequestHandler):
             self._send(400, {"ok": False, "error": "n 仅支持 5 / 10 / 20"})
             return
         try:
+            count = int(qs.get("count", [str(DEFAULT_COUNT)])[0])
+        except (TypeError, ValueError):
+            count = DEFAULT_COUNT
+        if count not in ALLOWED_COUNT:
+            self._send(400, {"ok": False, "error": "count 仅支持 1 / 5"})
+            return
+        try:
             rows, source = fetch_recent(n)
-            result = predict(rows, n)
+            result = predict(rows, n, count)
             self._send(200, {
                 "ok": True,
                 "n": n,
+                "count": result["count"],
                 "latest": rows[0],
                 "draws": rows[:n],
                 "predict": result,
