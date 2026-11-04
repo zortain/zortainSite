@@ -206,21 +206,23 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
                 </button>
               </div>
 
-              <table class="htable">
-                <thead>
-                  <tr><th>期号</th><th>开奖日期</th><th>红球</th><th class="tr">蓝球</th></tr>
-                </thead>
-                <tbody>
-                  <tr v-for="d in data.draws.slice(0, 7)" :key="d.code">
-                    <td class="code">{{ d.code }}</td>
-                    <td class="date">{{ d.date }}</td>
-                    <td>
-                      <span v-for="x in d.red" :key="d.code + x" class="ball red sm">{{ pad(x) }}</span>
-                    </td>
-                    <td class="tr"><span class="ball blue sm">{{ pad(d.blue) }}</span></td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="table-scroll">
+                <table class="htable">
+                  <thead>
+                    <tr><th>期号</th><th>开奖日期</th><th>红球</th><th class="tr">蓝球</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="d in data.draws.slice(0, 7)" :key="d.code">
+                      <td class="code">{{ d.code }}</td>
+                      <td class="date">{{ d.date }}</td>
+                      <td>
+                        <span v-for="x in d.red" :key="d.code + x" class="ball red sm">{{ pad(x) }}</span>
+                      </td>
+                      <td class="tr"><span class="ball blue sm">{{ pad(d.blue) }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </section>
           </div>
 
@@ -344,19 +346,21 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
           </div>
         </div>
         <section v-else class="card full-table">
-          <table class="htable big">
-            <thead><tr><th>期号</th><th>开奖日期</th><th>红球</th><th class="tr">蓝球</th></tr></thead>
-            <tbody>
-              <tr v-for="d in data.draws" :key="d.code">
-                <td class="code">{{ d.code }}</td>
-                <td class="date">{{ d.date }}</td>
-                <td>
-                  <span v-for="x in d.red" :key="d.code + 'h' + x" class="ball red sm">{{ pad(x) }}</span>
-                </td>
-                <td class="tr"><span class="ball blue sm">{{ pad(d.blue) }}</span></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="htable big">
+              <thead><tr><th>期号</th><th>开奖日期</th><th>红球</th><th class="tr">蓝球</th></tr></thead>
+              <tbody>
+                <tr v-for="d in data.draws" :key="d.code">
+                  <td class="code">{{ d.code }}</td>
+                  <td class="date">{{ d.date }}</td>
+                  <td>
+                    <span v-for="x in d.red" :key="d.code + 'h' + x" class="ball red sm">{{ pad(x) }}</span>
+                  </td>
+                  <td class="tr"><span class="ball blue sm">{{ pad(d.blue) }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </template>
 
@@ -635,15 +639,134 @@ function factorIcon(k) { return FACTOR_ICONS[k] || '' }
 .err { text-align: center; color: #ff9aa0; background: rgba(255,60,70,.1); border: 1px solid rgba(255,90,100,.3); border-radius: 12px; padding: 12px 16px; }
 .lab-foot { text-align: center; color: #64779d; font-size: 12.5px; letter-spacing: 1px; margin: 28px 0 0; }
 
+/* 表格滚动容器：窄屏不裁切、不挤压 */
+.table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll::-webkit-scrollbar { height: 4px; }
+.table-scroll::-webkit-scrollbar-thumb { background: rgba(94, 234, 255, .25); border-radius: 2px; }
+
 @media (max-width: 980px) {
   .dash { grid-template-columns: 1fr; }
   .shape-grid { grid-template-columns: repeat(3, 1fr); }
   .model-flow { grid-template-columns: 1fr; }
-  .lab-topbar { flex-direction: column; gap: 14px; }
-  .subnav { gap: 24px; }
-  .subnav button.on::after { bottom: -8px; }
+  .lab-topbar { flex-direction: row; gap: 14px; }
   .lab-body { padding: 22px 16px; }
   .bet-row { flex-wrap: wrap; gap: 10px; }
   .bet-meta { margin-left: 0; white-space: normal; width: 100%; }
+}
+
+/* ================= 手机端（≤640px） ================= */
+@media (max-width: 640px) {
+  /* 顶栏 */
+  .lab-topbar { padding: 12px 14px; gap: 10px; }
+  .brand { gap: 8px; min-width: 0; }
+  .brand-logo { width: 26px; height: 26px; }
+  .brand-name { font-size: 16px; letter-spacing: .5px; white-space: nowrap; }
+  .back-btn { height: 32px; padding: 0 12px; font-size: 12.5px; flex: none; }
+
+  .lab-body { padding: 16px 12px 24px; }
+
+  /* 标题与控件：整行排布，避免按钮文字被挤到换行 */
+  .page-head { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 16px; }
+  .page-title { font-size: 23px; line-height: 1.35; letter-spacing: .5px; }
+  .page-sub { font-size: 13px; margin-top: 6px; line-height: 1.6; }
+  .head-ctrl { width: 100%; flex-wrap: wrap; gap: 10px; }
+  .period-box { width: 100%; height: 46px; justify-content: center; }
+  .period-sel { font-size: 14px; }
+  .gen-btn {
+    flex: 1 1 0; min-width: 0; height: 46px; padding: 0 10px;
+    font-size: 14px; letter-spacing: 0; justify-content: center; gap: 6px;
+  }
+  .gen-btn .ic { width: 17px; height: 17px; }
+  .gen-btn-5 { padding: 0 10px; }
+
+  /* 卡片 */
+  .card { padding: 16px 14px; border-radius: 14px; }
+  .card-head { margin-bottom: 14px; gap: 10px; }
+  .card-h-l { gap: 9px; min-width: 0; }
+  .card-title { font-size: 15px; }
+  .card-sub { font-size: 11.5px; }
+  .random-tag { font-size: 11px; flex: none; }
+  .link-btn { font-size: 12.5px; flex: none; }
+  .col { gap: 14px; }
+  .dash { gap: 14px; }
+
+  /* 号码球：整体缩小，保证一排放得下 */
+  .ball.big { width: 42px; height: 42px; font-size: 18px; }
+  .ball:not(.big):not(.sm):not(.ghost) { width: 32px; height: 32px; font-size: 13px; }
+  .ball.sm { width: 22px; height: 22px; font-size: 11px; margin-right: 4px; }
+  .ball.ghost { width: 25px; height: 25px; font-size: 11.5px; margin-right: 5px; }
+  .combo-balls { gap: 7px; padding: 12px 0 18px; }
+  .plus { font-size: 20px; }
+
+  /* 形态指标：两列 + 字号下调，防止数值溢出 */
+  .shape-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+  .shape-cell { padding: 10px 11px; }
+  .shape-l { font-size: 11.5px; gap: 5px; margin-bottom: 6px; }
+  .shape-ico { width: 14px; height: 14px; }
+  .shape-val { font-size: 18px; white-space: nowrap; }
+
+  /* 五注列表 */
+  .bet-list { gap: 8px; }
+  .bet-row { padding: 10px; gap: 8px; }
+  .bet-no { min-width: 20px; font-size: 12px; }
+  .bet-balls { gap: 4px; }
+  .bet-meta { font-size: 11.5px; line-height: 1.6; }
+
+  /* 表格：横向滚动，保留全部列 */
+  .htable { min-width: 360px; }
+  .htable th, .htable td { padding-left: 7px; padding-right: 7px; }
+  .htable th { font-size: 12px; }
+  .htable td { font-size: 13px; }
+  .htable.big td { padding-top: 11px; padding-bottom: 11px; }
+  .full-table { padding: 14px 12px; }
+
+  /* 右列 */
+  .latest-code { font-size: 18px; }
+  .latest-date { font-size: 12.5px; margin-bottom: 12px; }
+  .latest-balls { gap: 6px; }
+  .kv { font-size: 13px; gap: 12px; }
+  .kv > span:last-child { text-align: right; }
+
+  /* 组合分析 */
+  .factor-row { padding: 12px; }
+  .factor-l { gap: 9px; }
+  .factor-ic { width: 22px; height: 22px; }
+  .factor-l b { font-size: 13.5px; }
+  .factor-l i { font-size: 11.5px; }
+
+  /* 空白态 */
+  .empty-board { min-height: 360px; padding: 28px 14px; border-radius: 16px; }
+  .empty-board.slim { min-height: 260px; }
+  .empty-balls { gap: 7px; margin-bottom: 20px; }
+  .empty-balls .plus { font-size: 20px; }
+  .empty-title { font-size: 19px; }
+  .empty-desc { font-size: 13px; line-height: 1.8; margin-bottom: 20px; }
+  .empty-acts { gap: 10px; }
+  .empty-links { gap: 10px; margin-top: 16px; }
+  .ghost-link { font-size: 12.5px; padding: 8px 13px; }
+
+  /* 模型说明 */
+  .mf-step { padding: 15px; }
+  .mf-step b { font-size: 15px; }
+  .mf-step p { font-size: 12.5px; }
+  .model-factors li { font-size: 12.5px; }
+  .strategy-line { font-size: 13px; }
+  .model-warn { font-size: 12px; padding: 11px 13px; }
+  .model-empty { font-size: 12.5px; padding: 12px 13px; }
+  .loading-box { padding: 56px 0; font-size: 13.5px; }
+  .lab-foot { font-size: 11.5px; margin-top: 20px; }
+}
+
+/* 超窄屏（≤380px）：进一步压缩顶栏与字号，避免任何横向溢出 */
+@media (max-width: 380px) {
+  .brand-logo { width: 22px; height: 22px; }
+  .brand-name { font-size: 14px; letter-spacing: 0; }
+  .back-btn { padding: 0 9px; font-size: 11.5px; }
+  .page-title { font-size: 21px; }
+  .ball.big { width: 38px; height: 38px; font-size: 16px; }
+  .ball:not(.big):not(.sm):not(.ghost) { width: 30px; height: 30px; font-size: 12px; }
+  .ball.sm { width: 20px; height: 20px; font-size: 10px; margin-right: 3px; }
+  .shape-val { font-size: 16px; }
+  .gen-btn { font-size: 13px; }
 }
 </style>

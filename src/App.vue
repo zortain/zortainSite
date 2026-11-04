@@ -124,6 +124,17 @@ watchEffect(() => {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* 手机端：三个 tab 收窄字号与内边距，禁止换行错位 */
+@media (max-width: 640px) {
+  .tabs { gap: 6px; padding: 10px 8px; flex-wrap: nowrap; overflow-x: auto; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 8px 12px; gap: 5px; letter-spacing: 0; white-space: nowrap;
+    font-size: clamp(12px, 3.6vw, 14px); flex: none;
+  }
+  .tab .tab-ico { font-size: clamp(13px, 3.9vw, 16px); }
+}
 </style>
 
 <style>
