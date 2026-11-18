@@ -30,3 +30,5 @@ npm run build
 ```bash
 npm run preview
 ```
+## 展示内容
+双色球随机，午餐随机挑选，观音签
